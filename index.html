@@ -26,7 +26,25 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            transition: filter 0.5s ease, transform 3s ease;
+            transition: all 0.5s ease;
+        }
+        
+        /* Прозрачный фон с главной страницы */
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1A1212 0%, #2A1A1A 50%, #3A2A2A 100%);
+            opacity: 0.1; /* Еле видимая прозрачность */
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .fishEyeEffect {
+            filter: url(#fisheye);
+            transform: scale(0.8);
         }
         
         .darkenOverlay {
@@ -35,11 +53,68 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
             z-index: 25;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1s ease;
+        }
+        
+        .waveOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.1);
+            z-index: 15;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .finalOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .dialogBox {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            display: none;
+        }
+        
+        .dialogText {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .continueButton {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
         }
         
         .fluidBackground {
@@ -69,7 +144,6 @@
             user-select: none;
             transform: translate(-50%, -50%);
             filter: brightness(1.1);
-            transition: all 0.1s ease;
             animation: pumpkinBreath 3s ease-in-out infinite;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
@@ -86,7 +160,7 @@
         }
         
         .pumpkinGhostPhase {
-            transform: translate(-50%, -50%) scale(0.8) !important;
+            transform: translate(-50%, -50%) scale(0.7) !important;
             filter: brightness(0.9) !important;
         }
         
@@ -115,12 +189,83 @@
             opacity: 0.9;
         }
         
+        .waveKnife {
+            animation: waveKnifeMove 2s linear infinite;
+        }
+        
         @keyframes knifeFall {
             0% { transform: translate(-50%, -50%) rotate(0deg) translateY(0); }
             25% { transform: translate(-50%, -50%) rotate(90deg) translateY(-2px); }
             50% { transform: translate(-50%, -50%) rotate(180deg) translateY(0); }
             75% { transform: translate(-50%, -50%) rotate(270deg) translateY(2px); }
             100% { transform: translate(-50%, -50%) rotate(360deg) translateY(0); }
+        }
+        
+        @keyframes waveKnifeMove {
+            0% { transform: translate(-50%, -50%) translateX(0px) translateY(0px); }
+            25% { transform: translate(-50%, -50%) translateX(20px) translateY(-10px); }
+            50% { transform: translate(-50%, -50%) translateX(0px) translateY(-20px); }
+            75% { transform: translate(-50%, -50%) translateX(-20px) translateY(-10px); }
+            100% { transform: translate(-50%, -50%) translateX(0px) translateY(0px); }
+        }
+        
+        .blackPumpkin {
+            position: absolute;
+            font-size: 50px;
+            z-index: 6;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            filter: brightness(0) drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
+            animation: blackPumpkinFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes blackPumpkinFloat {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+        
+        .explosion {
+            position: absolute;
+            font-size: 30px;
+            z-index: 7;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            animation: explode 0.5s ease-out forwards;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+        
+        .warningLine {
+            position: absolute;
+            background: rgba(255, 0, 0, 0.6);
+            z-index: 4;
+            pointer-events: none;
+            animation: warningFlash 0.3s ease-in-out 3;
+        }
+        
+        @keyframes warningFlash {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .barrierLine {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 3;
+            pointer-events: none;
         }
         
         #ghost {
@@ -141,54 +286,6 @@
             50% { 
                 transform: translate(-50%, -50%) translateY(-20px);
             }
-        }
-        
-        #uiPanel {
-            position: absolute;
-            top: 25px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 100;
-            gap: 15px;
-        }
-        
-        .statBox {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 16px 20px;
-            font-size: clamp(16px, 4vw, 18px);
-            font-weight: 600;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            min-width: 140px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-        
-        .statBox:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .statMain {
-            font-size: clamp(20px, 5vw, 26px);
-            color: #ffffff;
-            font-weight: 700;
-        }
-        
-        .statSub {
-            font-size: clamp(12px, 3vw, 14px);
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 500;
         }
         
         #startScreen {
@@ -246,55 +343,6 @@
             margin-top: 20px;
         }
         
-        .startButton:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-        }
-        
-        #gameOver {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 40px 30px;
-            text-align: center;
-            display: none;
-            z-index: 1000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 85%;
-            max-width: 400px;
-        }
-        
-        .screenTitle {
-            font-size: clamp(24px, 6vw, 32px);
-            margin-bottom: 20px;
-            color: #ffffff;
-            font-weight: 700;
-        }
-        
-        .actionButton {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 14px 32px;
-            font-size: clamp(16px, 4vw, 18px);
-            color: white;
-            cursor: pointer;
-            margin: 10px 0;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-        
-        .actionButton:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-        }
-        
         .blood {
             position: absolute;
             background: #dc2626;
@@ -345,150 +393,61 @@
                 opacity: 0;
             }
         }
-        
-        .touchControls {
-            position: absolute;
-            bottom: 30px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0 25px;
-            z-index: 50;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .touchArea {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: rgba(255, 255, 255, 0.9);
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-        
-        .touchArea:active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(0.95);
-        }
-        
-        .controlInfo {
-            position: absolute;
-            bottom: 120px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            z-index: 50;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            padding: 10px 20px;
-            border-radius: 12px;
-            margin: 0 60px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .newRecord {
-            animation: recordPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes recordPulse {
-            0%, 100% { 
-                color: #ffffff;
-                transform: scale(1);
-            }
-            50% { 
-                color: #667eea;
-                transform: scale(1.05);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            #pumpkin {
-                font-size: 70px;
-            }
-            
-            #ghost {
-                font-size: 80px;
-            }
-            
-            .knife {
-                font-size: 28px;
-            }
-            
-            .touchArea {
-                height: 70px;
-                font-size: 28px;
-                width: 70px;
-            }
-            
-            .statBox {
-                padding: 14px 16px;
-                min-width: 120px;
-            }
-            
-            .controlInfo {
-                bottom: 110px;
-                font-size: 13px;
-                margin: 0 50px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            #pumpkin {
-                font-size: 60px;
-            }
-            
-            #ghost {
-                font-size: 70px;
-            }
-            
-            .knife {
-                font-size: 24px;
-            }
-            
-            .touchArea {
-                height: 65px;
-                font-size: 24px;
-                width: 65px;
-                border-radius: 16px;
-            }
-            
-            .statBox {
-                padding: 12px 14px;
-                min-width: 110px;
-            }
-            
-            .controlInfo {
-                bottom: 100px;
-                font-size: 12px;
-                margin: 0 40px;
-                padding: 8px 16px;
-            }
-        }
 
         #pumpkin {
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
         }
+
+        /* Стили для минималистичного меню */
+        .minimalMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .menuPumpkin {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: pumpkinBreath 3s ease-in-out infinite;
+        }
+
+        .menuText {
+            font-size: 18px;
+            color: white;
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+
+        .tapAnywhere {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <svg style="position:absolute; height:0; width:0;">
+        <filter id="fisheye">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
     <audio id="backgroundMusic" loop>
         <source src="black-knife.mp3" type="audio/mpeg">
     </audio>
@@ -496,61 +455,103 @@
     <audio id="damageSound">
         <source src="uron.mp3" type="audio/mpeg">
     </audio>
+    
+    <audio id="explosionSound">
+        <source src="explosion.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="tikSound">
+        <source src="tik.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="pilSound">
+        <source src="pil.mp3" type="audio/mpeg">
+    </audio>
 
-    <div id="startScreen">
-        <div class="startContent">
-            <div class="startTitle">🎃 Pumpkin Defense</div>
-            <div class="startText">
-                Tap anywhere on the screen to start the game!
-                <br><br>
-                Use arrow buttons to move the pumpkin and dodge the black knives!
-            </div>
-            <button class="startButton" onclick="startGame()">TAP TO START</button>
-        </div>
+    <!-- Минималистичное меню вместо старого -->
+    <div id="minimalMenu" class="minimalMenu">
+        <div class="menuPumpkin">🎃</div>
+        <div class="menuText">Pumpkin Defense</div>
+        <div class="tapAnywhere">нажмите на любую часть экрана</div>
     </div>
+
+    <!-- Прозрачный фон с главной страницы -->
+    <div class="background-overlay"></div>
 
     <div class="fluidBackground"></div>
     <div class="darkenOverlay" id="darkenOverlay"></div>
+    <div class="waveOverlay" id="waveOverlay"></div>
+    
+    <div class="finalOverlay" id="finalOverlay">
+        <div id="ghostFinal">👻</div>
+        <div class="dialogBox" id="dialog1">
+            <div class="dialogText">Ты словил <span id="knivesHitCount">0</span> ножей</div>
+            <button class="continueButton" onclick="showNextDialog()">Далее</button>
+        </div>
+        <div class="dialogBox" id="dialog2">
+            <div class="dialogText">Много это или мало? Не знаю.</div>
+            <button class="continueButton" onclick="showNextDialog()">Далее</button>
+        </div>
+        <div class="dialogBox" id="dialog3">
+            <div class="dialogText">Просто имей ввиду что это только подготовка</div>
+            <button class="continueButton" onclick="showNextDialog()">Далее</button>
+        </div>
+        <div class="dialogBox" id="dialog4">
+            <div class="dialogText">У тебя была бесконечное здоровье, а в битве 31 октября у тебя будет его всего 100 XD</div>
+            <button class="continueButton" onclick="redirectToHalloweenGame()">Продолжить</button>
+        </div>
+    </div>
+
     <div id="gameContainer">
         <div id="pumpkin">🎃</div>
         <div id="ghost">👻</div>
-        
-        <div id="uiPanel">
-            <div id="scoreBox" class="statBox">
-                <div class="statMain" id="score">0</div>
-                <div class="statSub">SCORE</div>
-            </div>
-            <div id="speedBox" class="statBox">
-                <div class="statMain" id="speed">1.0x</div>
-                <div class="statSub">SPEED</div>
-            </div>
-        </div>
-        
-        <div id="gameOver">
-            <div class="screenTitle">Game Over</div>
-            <p id="finalScore">SCORE: 0</p>
-            <p id="highScoreDisplay">BEST: 0</p>
-            <button id="restart" class="actionButton">PLAY AGAIN</button>
-        </div>
-        
-        <div class="controlInfo">USE ARROWS TO MOVE</div>
-        <div class="touchControls">
-            <div class="touchArea" id="upBtn">↑</div>
-            <div style="display: flex; gap: 20px;">
-                <div class="touchArea" id="leftBtn">←</div>
-                <div class="touchArea" id="downBtn">↓</div>
-                <div class="touchArea" id="rightBtn">→</div>
-            </div>
-        </div>
     </div>
 
     <script>
         let game;
+        let musicPlayed = false;
+
+        // Функция для перехода на Halloween-game
+        function redirectToHalloweenGame() {
+            window.location.href = "https://tqqqka.github.io/Halloween-game-/";
+        }
+
+        // Заменяем старую функцию closeGame
+        function closeGame() {
+            redirectToHalloweenGame();
+        }
 
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('minimalMenu').style.display = 'none';
             game = new Game();
+            game.init();
         }
+
+        function showNextDialog() {
+            const dialogs = ['dialog1', 'dialog2', 'dialog3', 'dialog4'];
+            let currentVisible = null;
+            
+            for (let dialog of dialogs) {
+                if (document.getElementById(dialog).style.display === 'block') {
+                    currentVisible = dialog;
+                    break;
+                }
+            }
+            
+            if (currentVisible) {
+                document.getElementById(currentVisible).style.display = 'none';
+                const nextIndex = dialogs.indexOf(currentVisible) + 1;
+                if (nextIndex < dialogs.length) {
+                    document.getElementById(dialogs[nextIndex]).style.display = 'block';
+                }
+            } else {
+                document.getElementById('dialog1').style.display = 'block';
+            }
+        }
+
+        // Обработчик для минималистичного меню
+        document.getElementById('minimalMenu').addEventListener('click', startGame);
+        document.getElementById('minimalMenu').addEventListener('touchstart', startGame);
 
         class Game {
             constructor() {
@@ -558,149 +559,118 @@
                 this.ghost = document.getElementById('ghost');
                 this.gameContainer = document.getElementById('gameContainer');
                 this.darkenOverlay = document.getElementById('darkenOverlay');
-                this.scoreElement = document.getElementById('score');
-                this.speedElement = document.getElementById('speed');
-                this.gameOverScreen = document.getElementById('gameOver');
-                this.finalScoreElement = document.getElementById('finalScore');
-                this.highScoreDisplayElement = document.getElementById('highScoreDisplay');
-                this.restartButton = document.getElementById('restart');
+                this.waveOverlay = document.getElementById('waveOverlay');
+                this.finalOverlay = document.getElementById('finalOverlay');
                 this.backgroundMusic = document.getElementById('backgroundMusic');
                 this.damageSound = document.getElementById('damageSound');
-                this.upBtn = document.getElementById('upBtn');
-                this.downBtn = document.getElementById('downBtn');
-                this.leftBtn = document.getElementById('leftBtn');
-                this.rightBtn = document.getElementById('rightBtn');
+                this.explosionSound = document.getElementById('explosionSound');
+                this.tikSound = document.getElementById('tikSound');
+                this.pilSound = document.getElementById('pilSound');
                 
-                this.highScore = this.loadHighScore();
-                this.highScoreDisplayElement.textContent = this.highScore;
-                
-                this.ensurePumpkinVisibility();
-                
-                // Бесконечное HP - только визуальные эффекты при попадании
+                this.knivesHit = 0;
                 this.score = 0;
                 this.speed = 1.0;
-                this.gameRunning = true;
+                this.gameRunning = false;
                 this.lastSpeedIncrease = Date.now();
                 this.speedIncreaseInterval = 4000;
                 this.knifeCount = 1;
                 
-                // Ghost phase - начинается через 30 секунд
                 this.ghostPhaseActive = false;
+                this.wavePhaseActive = false;
+                this.pumpkinPhaseActive = false;
+                this.barrierPhaseActive = false;
                 this.ghostPhaseStartTime = null;
                 this.ghostPhaseDuration = 15000;
-                this.ghostPhaseEnding = false;
-                this.gameStartTime = Date.now();
+                this.wavePhaseDuration = 15000;
+                this.pumpkinPhaseDuration = 15000;
+                this.barrierPhaseDuration = 15000;
+                this.gameStartTime = null;
+                this.totalGameTime = 117000; // 1 мин 57 сек
                 
                 this.pumpkinX = window.innerWidth / 2;
                 this.pumpkinY = window.innerHeight / 2;
                 
                 this.knives = [];
+                this.blackPumpkins = [];
+                this.barriers = [];
                 this.knifeInterval = null;
                 this.ghostKnifeInterval = null;
-                this.touchMove = null;
-                this.moveInterval = null;
+                this.waveKnifeInterval = null;
+                this.pumpkinInterval = null;
+                this.barrierInterval = null;
                 
-                this.lastUpdateTime = Date.now();
-                this.moveSpeed = 8;
-                
-                this.ghostPatterns = [
-                    'spiral',
-                    'circle',
-                    'cross',
-                    'random'
-                ];
+                this.ghostPatterns = ['spiral', 'circle', 'cross', 'random'];
                 this.currentPattern = 0;
                 this.patternTimer = 0;
+            }
+            
+            init() {
+                console.log('Game initializing...');
+                this.gameRunning = true;
+                this.gameStartTime = Date.now();
                 
-                this.init();
+                this.updatePumpkinPosition();
+                this.setupEventListeners();
+                this.startBackgroundMusic();
+                this.startKnifeGeneration();
+                this.createParticles();
+                this.gameLoop();
+                
+                console.log('Game started!');
             }
             
-            loadHighScore() {
-                const saved = localStorage.getItem('pumpkinDefenseHighScore');
-                return saved ? parseInt(saved) : 0;
-            }
-            
-            saveHighScore() {
-                if (this.score > this.highScore) {
-                    this.highScore = this.score;
-                    localStorage.setItem('pumpkinDefenseHighScore', this.highScore.toString());
+            startBackgroundMusic() {
+                if (this.backgroundMusic && !musicPlayed) {
+                    this.backgroundMusic.volume = 0.3;
+                    this.backgroundMusic.play().catch(e => {
+                        console.log('Audio play failed:', e);
+                    });
+                    musicPlayed = true;
                 }
             }
             
             playDamageSound() {
-                try {
+                if (this.damageSound) {
                     this.damageSound.currentTime = 0;
+                    this.damageSound.volume = 0.7;
                     this.damageSound.play().catch(e => {
                         console.log('Damage sound play failed');
                     });
-                } catch (error) {
-                    console.log('Damage sound error:', error);
                 }
             }
             
-            ensurePumpkinVisibility() {
-                this.pumpkin.style.display = 'block';
-                this.pumpkin.style.visibility = 'visible';
-                this.pumpkin.style.opacity = '1';
-                this.pumpkin.style.left = '50%';
-                this.pumpkin.style.top = '50%';
-            }
-            
-            init() {
-                this.updatePumpkinPosition();
-                this.setupEventListeners();
-                this.startKnifeGeneration();
-                this.createParticles();
-                this.startBackgroundMusic();
-                this.gameLoop();
-                
-                this.restartButton.addEventListener('click', () => this.restart());
-            }
-            
-            startBackgroundMusic() {
-                this.backgroundMusic.volume = 0.3;
-                const playMusic = () => {
-                    this.backgroundMusic.play().catch(e => {
-                        console.log('Audio play failed');
+            playExplosionSound() {
+                if (this.explosionSound) {
+                    this.explosionSound.currentTime = 0;
+                    this.explosionSound.volume = 0.7;
+                    this.explosionSound.play().catch(e => {
+                        console.log('Explosion sound play failed');
                     });
-                };
-                
-                playMusic();
-            }
-            
-            createParticles() {
-                for (let i = 0; i < 15; i++) {
-                    setTimeout(() => {
-                        this.createParticle();
-                    }, i * 400);
                 }
-                
-                setInterval(() => {
-                    if (this.gameRunning && Math.random() > 0.7) {
-                        this.createParticle();
-                    }
-                }, 1000);
             }
             
-            createParticle() {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + 'vw';
-                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
-                particle.style.animationDelay = (Math.random() * 3) + 's';
-                this.gameContainer.appendChild(particle);
-                
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.remove();
-                    }
-                }, 10000);
+            playTikSound() {
+                if (this.tikSound) {
+                    this.tikSound.currentTime = 0;
+                    this.tikSound.volume = 0.7;
+                    this.tikSound.play().catch(e => {
+                        console.log('Tik sound play failed');
+                    });
+                }
+            }
+            
+            playPilSound() {
+                if (this.pilSound) {
+                    this.pilSound.currentTime = 0;
+                    this.pilSound.volume = 0.7;
+                    this.pilSound.play().catch(e => {
+                        console.log('Pil sound play failed');
+                    });
+                }
             }
             
             setupEventListeners() {
-                this.setupTouchControls();
-                
-                // Старое управление мышью
+                // Mouse movement
                 document.addEventListener('mousemove', (e) => {
                     if (this.gameRunning) {
                         this.pumpkinX = e.clientX;
@@ -709,121 +679,20 @@
                     }
                 });
                 
+                // Touch movement
+                document.addEventListener('touchmove', (e) => {
+                    if (this.gameRunning && e.touches.length > 0) {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        this.pumpkinX = touch.clientX;
+                        this.pumpkinY = touch.clientY;
+                        this.updatePumpkinPosition();
+                    }
+                }, { passive: false });
+                
                 window.addEventListener('resize', () => {
-                    this.pumpkinX = Math.min(this.pumpkinX, window.innerWidth - 40);
-                    this.pumpkinY = Math.min(this.pumpkinY, window.innerHeight - 40);
                     this.updatePumpkinPosition();
                 });
-            }
-            
-            setupTouchControls() {
-                const startMove = (direction) => {
-                    if (!this.gameRunning) return;
-                    this.stopMoving();
-                    this.touchMove = direction;
-                    this.movePumpkin();
-                };
-
-                const stopMove = () => {
-                    this.stopMoving();
-                };
-
-                this.upBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    startMove('up');
-                }, { passive: false });
-                
-                this.upBtn.addEventListener('touchend', stopMove);
-                this.upBtn.addEventListener('touchcancel', stopMove);
-                
-                this.downBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    startMove('down');
-                }, { passive: false });
-                
-                this.downBtn.addEventListener('touchend', stopMove);
-                this.downBtn.addEventListener('touchcancel', stopMove);
-                
-                this.leftBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    startMove('left');
-                }, { passive: false });
-                
-                this.leftBtn.addEventListener('touchend', stopMove);
-                this.leftBtn.addEventListener('touchcancel', stopMove);
-                
-                this.rightBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    startMove('right');
-                }, { passive: false });
-                
-                this.rightBtn.addEventListener('touchend', stopMove);
-                this.rightBtn.addEventListener('touchcancel', stopMove);
-                
-                // Mouse controls for testing
-                this.upBtn.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startMove('up');
-                });
-                
-                this.upBtn.addEventListener('mouseup', stopMove);
-                this.upBtn.addEventListener('mouseleave', stopMove);
-                
-                this.downBtn.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startMove('down');
-                });
-                
-                this.downBtn.addEventListener('mouseup', stopMove);
-                this.downBtn.addEventListener('mouseleave', stopMove);
-                
-                this.leftBtn.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startMove('left');
-                });
-                
-                this.leftBtn.addEventListener('mouseup', stopMove);
-                this.leftBtn.addEventListener('mouseleave', stopMove);
-                
-                this.rightBtn.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startMove('right');
-                });
-                
-                this.rightBtn.addEventListener('mouseup', stopMove);
-                this.rightBtn.addEventListener('mouseleave', stopMove);
-            }
-            
-            stopMoving() {
-                this.touchMove = null;
-                if (this.moveInterval) {
-                    cancelAnimationFrame(this.moveInterval);
-                    this.moveInterval = null;
-                }
-            }
-            
-            movePumpkin() {
-                if (!this.gameRunning || !this.touchMove) return;
-                
-                const now = Date.now();
-                const deltaTime = Math.min(now - this.lastUpdateTime, 100) / 1000;
-                this.lastUpdateTime = now;
-                
-                const moveDistance = this.moveSpeed * 60 * deltaTime;
-                
-                if (this.touchMove === 'up') {
-                    this.pumpkinY = Math.max(50, this.pumpkinY - moveDistance);
-                } else if (this.touchMove === 'down') {
-                    this.pumpkinY = Math.min(window.innerHeight - 50, this.pumpkinY + moveDistance);
-                } else if (this.touchMove === 'left') {
-                    this.pumpkinX = Math.max(50, this.pumpkinX - moveDistance);
-                } else if (this.touchMove === 'right') {
-                    this.pumpkinX = Math.min(window.innerWidth - 50, this.pumpkinX + moveDistance);
-                }
-                
-                this.updatePumpkinPosition();
-                
-                this.moveInterval = requestAnimationFrame(() => this.movePumpkin());
             }
             
             updatePumpkinPosition() {
@@ -832,148 +701,14 @@
             }
             
             startKnifeGeneration() {
+                console.log('Starting knife generation');
                 this.knifeInterval = setInterval(() => {
-                    if (this.gameRunning && !this.ghostPhaseActive) {
+                    if (this.gameRunning && !this.ghostPhaseActive && !this.wavePhaseActive && !this.pumpkinPhaseActive && !this.barrierPhaseActive) {
                         for (let i = 0; i < this.knifeCount; i++) {
-                            setTimeout(() => {
-                                this.createKnife();
-                            }, i * 200);
+                            setTimeout(() => this.createKnife(), i * 200);
                         }
                     }
                 }, 1500 / this.speed);
-            }
-            
-            startGhostPhase() {
-                this.ghostPhaseActive = true;
-                this.ghostPhaseStartTime = Date.now();
-                this.ghostPhaseEnding = false;
-                
-                clearInterval(this.knifeInterval);
-                
-                this.ghost.style.display = 'block';
-                this.ghost.style.left = '50%';
-                this.ghost.style.top = '50%';
-                this.darkenOverlay.style.opacity = '1';
-                
-                this.pumpkin.classList.add('pumpkinGhostPhase');
-                
-                this.ghostKnifeInterval = setInterval(() => {
-                    if (this.gameRunning && this.ghostPhaseActive) {
-                        this.createGhostKnifePattern();
-                    }
-                }, 300 / this.speed);
-            }
-            
-            createGhostKnifePattern() {
-                const pattern = this.ghostPatterns[this.currentPattern];
-                const ghostX = window.innerWidth / 2;
-                const ghostY = window.innerHeight / 2;
-                
-                switch(pattern) {
-                    case 'spiral':
-                        this.createSpiralPattern(ghostX, ghostY);
-                        break;
-                    case 'circle':
-                        this.createCirclePattern(ghostX, ghostY);
-                        break;
-                    case 'cross':
-                        this.createCrossPattern(ghostX, ghostY);
-                        break;
-                    case 'random':
-                        this.createRandomPattern(ghostX, ghostY);
-                        break;
-                }
-                
-                this.patternTimer++;
-                if (this.patternTimer > 30) {
-                    this.patternTimer = 0;
-                    this.currentPattern = (this.currentPattern + 1) % this.ghostPatterns.length;
-                }
-            }
-            
-            createSpiralPattern(centerX, centerY) {
-                const angle = this.patternTimer * 0.3;
-                const radius = 50 + this.patternTimer * 3;
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
-                this.createGhostKnife(x, y, centerX, centerY);
-            }
-            
-            createCirclePattern(centerX, centerY) {
-                const knives = 8;
-                for (let i = 0; i < knives; i++) {
-                    const angle = (i / knives) * Math.PI * 2;
-                    const radius = 200;
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
-                    this.createGhostKnife(x, y, centerX, centerY);
-                }
-            }
-            
-            createCrossPattern(centerX, centerY) {
-                const offsets = [-150, -100, -50, 50, 100, 150];
-                offsets.forEach(offset => {
-                    this.createGhostKnife(centerX + offset, centerY - 200, centerX, centerY);
-                    this.createGhostKnife(centerX + offset, centerY + 200, centerX, centerY);
-                    this.createGhostKnife(centerX - 200, centerY + offset, centerX, centerY);
-                    this.createGhostKnife(centerX + 200, centerY + offset, centerX, centerY);
-                });
-            }
-            
-            createRandomPattern(centerX, centerY) {
-                for (let i = 0; i < 5; i++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 150 + Math.random() * 100;
-                    const x = centerX + Math.cos(angle) * distance;
-                    const y = centerY + Math.sin(angle) * distance;
-                    this.createGhostKnife(x, y, centerX, centerY);
-                }
-            }
-            
-            createGhostKnife(startX, startY, targetX, targetY) {
-                const knife = document.createElement('div');
-                knife.className = 'knife';
-                knife.innerHTML = '🔪';
-                
-                knife.style.left = startX + 'px';
-                knife.style.top = startY + 'px';
-                
-                this.gameContainer.appendChild(knife);
-                
-                const dx = targetX - startX;
-                const dy = targetY - startY;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                const directionX = dx / length;
-                const directionY = dy / length;
-                
-                this.knives.push({
-                    element: knife,
-                    x: startX,
-                    y: startY,
-                    speed: 5 + Math.random() * 2,
-                    directionX: directionX,
-                    directionY: directionY,
-                    type: 'ghostKnife'
-                });
-            }
-            
-            endGhostPhase() {
-                this.ghostPhaseActive = false;
-                this.ghostPhaseEnding = false;
-                this.ghost.style.display = 'none';
-                this.darkenOverlay.style.opacity = '0';
-                this.gameContainer.style.transform = 'scale(1)';
-                
-                this.pumpkin.classList.remove('pumpkinGhostPhase');
-                
-                clearInterval(this.ghostKnifeInterval);
-                
-                this.knives.forEach(knife => knife.element.remove());
-                this.knives = [];
-                
-                this.gameStartTime = Date.now();
-                
-                this.startKnifeGeneration();
             }
             
             createKnife() {
@@ -982,7 +717,7 @@
                 knife.innerHTML = '🔪';
                 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = Math.max(window.innerWidth, window.innerHeight) * 0.8;
+                const distance = Math.max(window.innerWidth, window.innerHeight);
                 const startX = this.pumpkinX + Math.cos(angle) * distance;
                 const startY = this.pumpkinY + Math.sin(angle) * distance;
                 
@@ -1003,34 +738,23 @@
                     y: startY,
                     speed: 3 + Math.random() * 2,
                     directionX: directionX,
-                    directionY: directionY,
-                    type: 'knife'
+                    directionY: directionY
                 });
             }
             
             updateKnives() {
-                const now = Date.now();
-                const deltaTime = Math.min(now - this.lastUpdateTime, 100) / 1000;
-                
                 for (let i = this.knives.length - 1; i >= 0; i--) {
                     const knife = this.knives[i];
                     
-                    knife.x += knife.directionX * knife.speed * this.speed * 60 * deltaTime;
-                    knife.y += knife.directionY * knife.speed * this.speed * 60 * deltaTime;
+                    knife.x += knife.directionX * knife.speed * this.speed;
+                    knife.y += knife.directionY * knife.speed * this.speed;
                     
                     knife.element.style.left = knife.x + 'px';
                     knife.element.style.top = knife.y + 'px';
                     
                     if (this.checkCollision(knife)) {
-                        // Эффект попадания без потери HP
-                        this.playDamageSound();
-                        this.pumpkin.classList.add('pumpkinHit');
-                        setTimeout(() => {
-                            this.pumpkin.classList.remove('pumpkinHit');
-                        }, 300);
-                        
-                        this.createBloodSplatter();
-                        
+                        this.knivesHit++;
+                        this.createHitEffect();
                         knife.element.remove();
                         this.knives.splice(i, 1);
                         continue;
@@ -1040,15 +764,11 @@
                     const dy = knife.y - this.pumpkinY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance > Math.max(window.innerWidth, window.innerHeight) * 1.5) {
+                    if (distance > Math.max(window.innerWidth, window.innerHeight) * 2) {
                         knife.element.remove();
                         this.knives.splice(i, 1);
-                        this.score += 10;
-                        this.scoreElement.textContent = this.score;
                     }
                 }
-                
-                this.lastUpdateTime = now;
             }
             
             checkCollision(obj) {
@@ -1072,133 +792,641 @@
                        pumpkinRect.bottom > objRect.top;
             }
             
-            gameOver() {
-                this.gameRunning = false;
-                clearInterval(this.knifeInterval);
-                clearInterval(this.ghostKnifeInterval);
-                this.stopMoving();
+            createHitEffect() {
+                this.playDamageSound();
+                this.pumpkin.classList.add('pumpkinHit');
+                setTimeout(() => {
+                    this.pumpkin.classList.remove('pumpkinHit');
+                }, 300);
                 
                 this.createBloodSplatter();
-                
-                this.knives.forEach(knife => {
-                    knife.element.style.animation = 'none';
-                });
-                
-                this.saveHighScore();
-                
-                setTimeout(() => {
-                    this.showGameOver();
-                }, 1000);
             }
             
             createBloodSplatter() {
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 5; i++) {
                     setTimeout(() => {
                         const blood = document.createElement('div');
                         blood.className = 'blood';
                         blood.style.left = this.pumpkinX + 'px';
                         blood.style.top = this.pumpkinY + 'px';
-                        blood.style.width = (Math.random() * 20 + 10) + 'px';
+                        blood.style.width = (Math.random() * 15 + 5) + 'px';
                         blood.style.height = blood.style.width;
-                        blood.style.background = `rgba(220, 38, 38, ${Math.random() * 0.7 + 0.3})`;
-                        
                         this.gameContainer.appendChild(blood);
                         
-                        setTimeout(() => {
-                            if (blood.parentNode) {
-                                blood.remove();
-                            }
-                        }, 1500);
+                        setTimeout(() => blood.remove(), 1500);
                     }, i * 100);
                 }
             }
             
-            showGameOver() {
-                this.finalScoreElement.textContent = 'SCORE: ' + this.score;
-                this.highScoreDisplayElement.textContent = 'BEST: ' + this.highScore;
-                this.gameOverScreen.style.display = 'block';
+            startGhostPhase() {
+                console.log('Starting ghost phase');
+                this.ghostPhaseActive = true;
+                this.ghostPhaseStartTime = Date.now();
+                
+                clearInterval(this.knifeInterval);
+                
+                // Призрак в центре
+                this.ghost.style.display = 'block';
+                this.ghost.style.left = '50%';
+                this.ghost.style.top = '50%';
+                this.darkenOverlay.style.opacity = '1';
+                this.gameContainer.classList.add('fishEyeEffect');
+                this.pumpkin.classList.add('pumpkinGhostPhase');
+                
+                this.ghostKnifeInterval = setInterval(() => {
+                    if (this.gameRunning && this.ghostPhaseActive) {
+                        this.createGhostKnifePattern();
+                    }
+                }, 500 / this.speed);
             }
             
-            restart() {
-                this.gameOverScreen.style.display = 'none';
+            createGhostKnifePattern() {
+                const ghostX = window.innerWidth / 2;
+                const ghostY = window.innerHeight / 2;
+                const pattern = this.ghostPatterns[this.currentPattern];
                 
-                this.knives.forEach(knife => knife.element.remove());
+                switch(pattern) {
+                    case 'spiral':
+                        this.createSpiralPattern(ghostX, ghostY);
+                        break;
+                    case 'circle':
+                        this.createCirclePattern(ghostX, ghostY);
+                        break;
+                    case 'cross':
+                        this.createCrossPattern(ghostX, ghostY);
+                        break;
+                    case 'random':
+                        this.createRandomPattern(ghostX, ghostY);
+                        break;
+                }
                 
-                this.knives = [];
-                this.score = 0;
-                this.speed = 1.0;
-                this.gameRunning = true;
-                this.lastSpeedIncrease = Date.now();
-                this.lastUpdateTime = Date.now();
-                this.knifeCount = 1;
+                this.patternTimer++;
+                if (this.patternTimer > 20) {
+                    this.patternTimer = 0;
+                    this.currentPattern = (this.currentPattern + 1) % this.ghostPatterns.length;
+                }
+            }
+            
+            createSpiralPattern(centerX, centerY) {
+                const angle = this.patternTimer * 0.5;
+                const radius = 30 + this.patternTimer * 4;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                this.createGhostKnife(x, y, centerX, centerY);
+            }
+            
+            createCirclePattern(centerX, centerY) {
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    const radius = 150;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    this.createGhostKnife(x, y, centerX, centerY);
+                }
+            }
+            
+            createCrossPattern(centerX, centerY) {
+                const positions = [
+                    [centerX - 150, centerY], [centerX + 150, centerY],
+                    [centerX, centerY - 150], [centerX, centerY + 150],
+                    [centerX - 100, centerY - 100], [centerX + 100, centerY + 100],
+                    [centerX - 100, centerY + 100], [centerX + 100, centerY - 100]
+                ];
+                
+                positions.forEach(([x, y]) => {
+                    this.createGhostKnife(x, y, centerX, centerY);
+                });
+            }
+            
+            createRandomPattern(centerX, centerY) {
+                for (let i = 0; i < 4; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 100 + Math.random() * 100;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    this.createGhostKnife(x, y, centerX, centerY);
+                }
+            }
+            
+            createGhostKnife(startX, startY, targetX, targetY) {
+                const knife = document.createElement('div');
+                knife.className = 'knife';
+                knife.innerHTML = '🔪';
+                knife.style.left = startX + 'px';
+                knife.style.top = startY + 'px';
+                this.gameContainer.appendChild(knife);
+                
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const directionX = dx / length;
+                const directionY = dy / length;
+                
+                this.knives.push({
+                    element: knife,
+                    x: startX,
+                    y: startY,
+                    speed: 4 + Math.random() * 2,
+                    directionX: directionX,
+                    directionY: directionY
+                });
+            }
+            
+            endGhostPhase() {
                 this.ghostPhaseActive = false;
-                this.ghostPhaseStartTime = null;
-                this.ghostPhaseEnding = false;
-                this.gameStartTime = Date.now();
-                
                 this.ghost.style.display = 'none';
                 this.darkenOverlay.style.opacity = '0';
-                this.gameContainer.style.transform = 'scale(1)';
+                this.gameContainer.classList.remove('fishEyeEffect');
                 this.pumpkin.classList.remove('pumpkinGhostPhase');
-                this.pumpkin.classList.remove('pumpkinHit');
                 
-                this.scoreElement.textContent = '0';
-                this.speedElement.textContent = '1.0x';
+                clearInterval(this.ghostKnifeInterval);
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
                 
-                this.pumpkinX = window.innerWidth / 2;
-                this.pumpkinY = window.innerHeight / 2;
-                this.updatePumpkinPosition();
+                // Начинаем улучшенную волновую атаку
+                this.startImprovedWavePhase();
+            }
+            
+            startImprovedWavePhase() {
+                console.log('Starting improved wave phase');
+                this.wavePhaseActive = true;
+                this.wavePhaseStartTime = Date.now();
+                this.waveOverlay.style.opacity = '1';
+                
+                // Медленнее создаем волны
+                this.waveKnifeInterval = setInterval(() => {
+                    if (this.gameRunning && this.wavePhaseActive) {
+                        this.createImprovedWave();
+                    }
+                }, 3000 / this.speed); // Увеличил интервал с 2000 до 3000
+            }
+            
+            createImprovedWave() {
+                this.playTikSound(); // Звук tik при создании линии
+                
+                // Создаем предупреждающую линию
+                const lineType = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+                let warningLine;
+                
+                if (lineType === 'horizontal') {
+                    const y = Math.random() * window.innerHeight;
+                    warningLine = document.createElement('div');
+                    warningLine.className = 'warningLine';
+                    warningLine.style.left = '0';
+                    warningLine.style.top = y + 'px';
+                    warningLine.style.width = '100%';
+                    warningLine.style.height = '4px';
+                } else {
+                    const x = Math.random() * window.innerWidth;
+                    warningLine = document.createElement('div');
+                    warningLine.className = 'warningLine';
+                    warningLine.style.left = x + 'px';
+                    warningLine.style.top = '0';
+                    warningLine.style.width = '4px';
+                    warningLine.style.height = '100%';
+                }
+                
+                this.gameContainer.appendChild(warningLine);
+                
+                // Через 1.5 секунды создаем ножи по линии (было 1 секунда)
+                setTimeout(() => {
+                    this.playPilSound(); // Звук pil при появлении ножей
+                    warningLine.remove();
+                    
+                    if (lineType === 'horizontal') {
+                        const y = parseFloat(warningLine.style.top);
+                        this.createLineKnivesHorizontal(y);
+                    } else {
+                        const x = parseFloat(warningLine.style.left);
+                        this.createLineKnivesVertical(x);
+                    }
+                }, 1500);
+            }
+            
+            createLineKnivesHorizontal(y) {
+                const knifeCount = Math.floor(window.innerWidth / 40);
+                for (let i = 0; i < knifeCount; i++) {
+                    const x = (i / knifeCount) * window.innerWidth;
+                    const knife = document.createElement('div');
+                    knife.className = 'knife';
+                    knife.innerHTML = '🔪';
+                    knife.style.left = x + 'px';
+                    knife.style.top = y + 'px';
+                    this.gameContainer.appendChild(knife);
+                    
+                    this.knives.push({
+                        element: knife,
+                        x: x,
+                        y: y,
+                        speed: 4, // Немного медленнее
+                        directionX: 0,
+                        directionY: 1,
+                        isWave: true
+                    });
+                }
+            }
+            
+            createLineKnivesVertical(x) {
+                const knifeCount = Math.floor(window.innerHeight / 40);
+                for (let i = 0; i < knifeCount; i++) {
+                    const y = (i / knifeCount) * window.innerHeight;
+                    const knife = document.createElement('div');
+                    knife.className = 'knife';
+                    knife.innerHTML = '🔪';
+                    knife.style.left = x + 'px';
+                    knife.style.top = y + 'px';
+                    this.gameContainer.appendChild(knife);
+                    
+                    this.knives.push({
+                        element: knife,
+                        x: x,
+                        y: y,
+                        speed: 4, // Немного медленнее
+                        directionX: 1,
+                        directionY: 0,
+                        isWave: true
+                    });
+                }
+            }
+            
+            endWavePhase() {
+                this.wavePhaseActive = false;
+                this.waveOverlay.style.opacity = '0';
+                
+                clearInterval(this.waveKnifeInterval);
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
+                
+                // Начинаем фазу барьеров
+                this.startBarrierPhase();
+            }
+            
+            startBarrierPhase() {
+                console.log('Starting barrier phase');
+                this.barrierPhaseActive = true;
+                this.barrierPhaseStartTime = Date.now();
+                
+                this.barrierInterval = setInterval(() => {
+                    if (this.gameRunning && this.barrierPhaseActive) {
+                        this.createBarrier();
+                    }
+                }, 3000 / this.speed);
+            }
+            
+            createBarrier() {
+                const barrierType = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+                const gapSize = 120; // Размер прохода для игрока
+                
+                if (barrierType === 'horizontal') {
+                    // Горизонтальные барьеры снизу вверх
+                    const y = -100;
+                    const gapPosition = Math.random() * (window.innerWidth - gapSize);
+                    
+                    // Создаем две линии ножей с проходом посередине
+                    this.createBarrierLine(0, y, gapPosition, 4, 0, 3, true);
+                    this.createBarrierLine(gapPosition + gapSize, y, window.innerWidth - gapPosition - gapSize, 4, 0, 3, true);
+                    
+                } else {
+                    // Вертикальные барьеры слева направо
+                    const x = -100;
+                    const gapPosition = Math.random() * (window.innerHeight - gapSize);
+                    
+                    // Создаем две линии ножей с проходом посередине
+                    this.createBarrierLine(x, 0, 4, gapPosition, 3, 0, false);
+                    this.createBarrierLine(x, gapPosition + gapSize, 4, window.innerHeight - gapPosition - gapSize, 3, 0, false);
+                }
+            }
+            
+            createBarrierLine(startX, startY, width, height, speedX, speedY, isHorizontal) {
+                if (isHorizontal) {
+                    const knifeCount = Math.floor(width / 40);
+                    for (let i = 0; i < knifeCount; i++) {
+                        const x = startX + (i / knifeCount) * width;
+                        const knife = document.createElement('div');
+                        knife.className = 'knife';
+                        knife.innerHTML = '🔪';
+                        knife.style.left = x + 'px';
+                        knife.style.top = startY + 'px';
+                        this.gameContainer.appendChild(knife);
+                        
+                        this.knives.push({
+                            element: knife,
+                            x: x,
+                            y: startY,
+                            speed: 3,
+                            directionX: speedX,
+                            directionY: speedY,
+                            isBarrier: true
+                        });
+                    }
+                } else {
+                    const knifeCount = Math.floor(height / 40);
+                    for (let i = 0; i < knifeCount; i++) {
+                        const y = startY + (i / knifeCount) * height;
+                        const knife = document.createElement('div');
+                        knife.className = 'knife';
+                        knife.innerHTML = '🔪';
+                        knife.style.left = startX + 'px';
+                        knife.style.top = y + 'px';
+                        this.gameContainer.appendChild(knife);
+                        
+                        this.knives.push({
+                            element: knife,
+                            x: startX,
+                            y: y,
+                            speed: 3,
+                            directionX: speedX,
+                            directionY: speedY,
+                            isBarrier: true
+                        });
+                    }
+                }
+            }
+            
+            endBarrierPhase() {
+                this.barrierPhaseActive = false;
+                
+                clearInterval(this.barrierInterval);
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
+                
+                // Начинаем фазу черных тыкв
+                this.startPumpkinPhase();
+            }
+            
+            startPumpkinPhase() {
+                console.log('Starting pumpkin phase');
+                this.pumpkinPhaseActive = true;
+                this.pumpkinPhaseStartTime = Date.now();
+                
+                this.pumpkinInterval = setInterval(() => {
+                    if (this.gameRunning && this.pumpkinPhaseActive) {
+                        this.createBlackPumpkin();
+                    }
+                }, 2000 / this.speed);
+            }
+            
+            createBlackPumpkin() {
+                const blackPumpkin = document.createElement('div');
+                blackPumpkin.className = 'blackPumpkin';
+                blackPumpkin.innerHTML = '🎃';
+                
+                // Воспроизводим звук tik когда тыква появляется
+                this.playTikSound();
+                
+                // Появление с разных сторон
+                const side = Math.floor(Math.random() * 4);
+                let startX, startY, targetX, targetY;
+                
+                switch(side) {
+                    case 0: // top
+                        startX = Math.random() * window.innerWidth;
+                        startY = -50;
+                        targetX = this.pumpkinX;
+                        targetY = this.pumpkinY;
+                        break;
+                    case 1: // right
+                        startX = window.innerWidth + 50;
+                        startY = Math.random() * window.innerHeight;
+                        targetX = this.pumpkinX;
+                        targetY = this.pumpkinY;
+                        break;
+                    case 2: // bottom
+                        startX = Math.random() * window.innerWidth;
+                        startY = window.innerHeight + 50;
+                        targetX = this.pumpkinX;
+                        targetY = this.pumpkinY;
+                        break;
+                    case 3: // left
+                        startX = -50;
+                        startY = Math.random() * window.innerHeight;
+                        targetX = this.pumpkinX;
+                        targetY = this.pumpkinY;
+                        break;
+                }
+                
+                blackPumpkin.style.left = startX + 'px';
+                blackPumpkin.style.top = startY + 'px';
+                this.gameContainer.appendChild(blackPumpkin);
+                
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const directionX = dx / length;
+                const directionY = dy / length;
+                
+                const pumpkinObj = {
+                    element: blackPumpkin,
+                    x: startX,
+                    y: startY,
+                    speed: 2 + Math.random() * 1,
+                    directionX: directionX,
+                    directionY: directionY,
+                    isPumpkin: true
+                };
+                
+                this.blackPumpkins.push(pumpkinObj);
+                
+                // Взрыв через случайное время
+                setTimeout(() => {
+                    this.explodePumpkin(pumpkinObj);
+                }, 1500 + Math.random() * 1000);
+            }
+            
+            explodePumpkin(pumpkinObj) {
+                if (!pumpkinObj.element.parentNode) return;
+                
+                // Воспроизводим звук pil при взрыве
+                this.playPilSound();
+                this.playExplosionSound();
+                
+                // Создаем эффект взрыва
+                const explosion = document.createElement('div');
+                explosion.className = 'explosion';
+                explosion.innerHTML = '💥';
+                explosion.style.left = pumpkinObj.x + 'px';
+                explosion.style.top = pumpkinObj.y + 'px';
+                this.gameContainer.appendChild(explosion);
+                
+                setTimeout(() => {
+                    if (explosion.parentNode) {
+                        explosion.remove();
+                    }
+                }, 500);
+                
+                // Создаем ножи из взрыва
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const knife = document.createElement('div');
+                    knife.className = 'knife';
+                    knife.innerHTML = '🔪';
+                    knife.style.left = pumpkinObj.x + 'px';
+                    knife.style.top = pumpkinObj.y + 'px';
+                    this.gameContainer.appendChild(knife);
+                    
+                    this.knives.push({
+                        element: knife,
+                        x: pumpkinObj.x,
+                        y: pumpkinObj.y,
+                        speed: 3 + Math.random() * 2,
+                        directionX: Math.cos(angle),
+                        directionY: Math.sin(angle)
+                    });
+                }
+                
+                // Удаляем тыкву
+                pumpkinObj.element.remove();
+                const index = this.blackPumpkins.indexOf(pumpkinObj);
+                if (index > -1) {
+                    this.blackPumpkins.splice(index, 1);
+                }
+            }
+            
+            updateBlackPumpkins() {
+                for (let i = this.blackPumpkins.length - 1; i >= 0; i--) {
+                    const pumpkin = this.blackPumpkins[i];
+                    
+                    pumpkin.x += pumpkin.directionX * pumpkin.speed * this.speed;
+                    pumpkin.y += pumpkin.directionY * pumpkin.speed * this.speed;
+                    
+                    pumpkin.element.style.left = pumpkin.x + 'px';
+                    pumpkin.element.style.top = pumpkin.y + 'px';
+                    
+                    if (this.checkCollision(pumpkin)) {
+                        this.knivesHit++;
+                        this.createHitEffect();
+                        this.explodePumpkin(pumpkin);
+                        continue;
+                    }
+                    
+                    // Удаляем если вылетел за экран
+                    if (pumpkin.x < -100 || pumpkin.x > window.innerWidth + 100 ||
+                        pumpkin.y < -100 || pumpkin.y > window.innerHeight + 100) {
+                        pumpkin.element.remove();
+                        this.blackPumpkins.splice(i, 1);
+                    }
+                }
+            }
+            
+            endPumpkinPhase() {
+                this.pumpkinPhaseActive = false;
+                
+                clearInterval(this.pumpkinInterval);
+                this.blackPumpkins.forEach(pumpkin => pumpkin.element.remove());
+                this.blackPumpkins = [];
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
                 
                 this.startKnifeGeneration();
-                this.gameLoop();
+            }
+            
+            endGame() {
+                console.log('Game ended!');
+                this.gameRunning = false;
+                
+                clearInterval(this.knifeInterval);
+                clearInterval(this.ghostKnifeInterval);
+                clearInterval(this.waveKnifeInterval);
+                clearInterval(this.pumpkinInterval);
+                clearInterval(this.barrierInterval);
+                
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
+                this.blackPumpkins.forEach(pumpkin => pumpkin.element.remove());
+                this.blackPumpkins = [];
+                
+                // Показываем финальный экран
+                this.showFinalScreen();
+            }
+            
+            showFinalScreen() {
+                document.getElementById('knivesHitCount').textContent = this.knivesHit;
+                this.finalOverlay.style.display = 'flex';
+                document.getElementById('dialog1').style.display = 'block';
+                
+                // Призрак в центре на черном фоне
+                const ghostFinal = document.getElementById('ghostFinal');
+                ghostFinal.style.fontSize = '120px';
+                ghostFinal.style.filter = 'brightness(1.3) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8))';
+            }
+            
+            createParticles() {
+                setInterval(() => {
+                    if (this.gameRunning && Math.random() > 0.5) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + 'vw';
+                        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                        this.gameContainer.appendChild(particle);
+                        setTimeout(() => particle.remove(), 6000);
+                    }
+                }, 1000);
             }
             
             gameLoop() {
                 if (!this.gameRunning) return;
                 
                 this.updateKnives();
+                this.updateBlackPumpkins();
                 
-                // Фаза призрака начинается через 30 секунд от начала игры
-                if (!this.ghostPhaseActive) {
-                    const timeSinceStart = Date.now() - this.gameStartTime;
-                    if (timeSinceStart >= 30000) {
-                        this.startGhostPhase();
-                    }
+                const currentTime = Date.now();
+                const timeSinceStart = currentTime - this.gameStartTime;
+                
+                // Фаза призрака через 25 секунд
+                if (!this.ghostPhaseActive && !this.wavePhaseActive && !this.pumpkinPhaseActive && !this.barrierPhaseActive && timeSinceStart >= 25000) {
+                    this.startGhostPhase();
                 }
                 
-                if (this.ghostPhaseActive) {
-                    const ghostPhaseTime = Date.now() - this.ghostPhaseStartTime;
-                    const timeLeft = this.ghostPhaseDuration - ghostPhaseTime;
-                    
-                    if (timeLeft <= 3000 && !this.ghostPhaseEnding) {
-                        this.ghostPhaseEnding = true;
-                        this.gameContainer.style.transform = 'scale(1.3)';
-                    }
-                    
+                // Завершение фазы призрака
+                if (this.ghostPhaseActive && this.ghostPhaseStartTime) {
+                    const ghostPhaseTime = currentTime - this.ghostPhaseStartTime;
                     if (ghostPhaseTime >= this.ghostPhaseDuration) {
                         this.endGhostPhase();
                     }
                 }
                 
-                const now = Date.now();
-                if (now - this.lastSpeedIncrease > this.speedIncreaseInterval) {
+                // Завершение волновой фазы
+                if (this.wavePhaseActive && this.wavePhaseStartTime) {
+                    const wavePhaseTime = currentTime - this.wavePhaseStartTime;
+                    if (wavePhaseTime >= this.wavePhaseDuration) {
+                        this.endWavePhase();
+                    }
+                }
+                
+                // Завершение фазы барьеров
+                if (this.barrierPhaseActive && this.barrierPhaseStartTime) {
+                    const barrierPhaseTime = currentTime - this.barrierPhaseStartTime;
+                    if (barrierPhaseTime >= this.barrierPhaseDuration) {
+                        this.endBarrierPhase();
+                    }
+                }
+                
+                // Завершение фазы тыкв
+                if (this.pumpkinPhaseActive && this.pumpkinPhaseStartTime) {
+                    const pumpkinPhaseTime = currentTime - this.pumpkinPhaseStartTime;
+                    if (pumpkinPhaseTime >= this.pumpkinPhaseDuration) {
+                        this.endPumpkinPhase();
+                    }
+                }
+                
+                // Конец игры через 1:57
+                if (timeSinceStart >= this.totalGameTime) {
+                    this.endGame();
+                    return;
+                }
+                
+                // Увеличение скорости
+                if (currentTime - this.lastSpeedIncrease > this.speedIncreaseInterval) {
                     this.speed += 0.15;
-                    this.speedElement.textContent = this.speed.toFixed(1) + 'x';
-                    this.lastSpeedIncrease = now;
+                    this.lastSpeedIncrease = currentTime;
                     
-                    if (this.speed >= 1.0 && this.knifeCount < 2) {
-                        this.knifeCount = 2;
-                    } else if (this.speed >= 1.5 && this.knifeCount < 3) {
+                    if (this.speed >= 2.0 && this.knifeCount < 3) {
                         this.knifeCount = 3;
-                    } else if (this.speed >= 2.0 && this.knifeCount < 4) {
+                    } else if (this.speed >= 3.0 && this.knifeCount < 4) {
                         this.knifeCount = 4;
-                    } else if (this.speed >= 2.5 && this.knifeCount < 5) {
-                        this.knifeCount = 5;
-                    } else if (this.speed >= 3.0 && this.knifeCount < 6) {
-                        this.knifeCount = 6;
                     }
                     
-                    if (!this.ghostPhaseActive) {
+                    if (!this.ghostPhaseActive && !this.wavePhaseActive && !this.pumpkinPhaseActive && !this.barrierPhaseActive) {
                         clearInterval(this.knifeInterval);
                         this.startKnifeGeneration();
                     }
