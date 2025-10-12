@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pumpkin Defense</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            color: #e6e6e6;
+            height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            transition: filter 0.5s ease, transform 3s ease;
+        }
+        
+        .darkenOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 25;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .fluidBackground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 206, 107, 0.05) 0%, transparent 50%);
+            z-index: 1;
+            pointer-events: none;
+            animation: fluidMove 8s ease-in-out infinite;
+        }
+        
+        @keyframes fluidMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-10px, 10px) scale(1.02); }
+        }
+        
+        #pumpkin {
+            position: absolute;
+            font-size: 80px;
+            z-index: 10;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            filter: brightness(1.1);
+            transition: all 0.1s ease;
+            animation: pumpkinBreath 3s ease-in-out infinite;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes pumpkinBreath {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                filter: brightness(1.1);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.08) rotate(2deg);
+                filter: brightness(1.2);
+            }
+        }
+        
+        .pumpkinGhostPhase {
+            transform: translate(-50%, -50%) scale(0.8) !important;
+            filter: brightness(0.9) !important;
+        }
+        
+        .pumpkinHit {
+            animation: hitEffect 0.3s ease-out;
+        }
+        
+        @keyframes hitEffect {
+            0%, 100% { 
+                filter: brightness(1.1);
+            }
+            50% { 
+                filter: brightness(2) hue-rotate(90deg) drop-shadow(0 0 10px red);
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+        
+        .knife {
+            position: absolute;
+            font-size: 32px;
+            z-index: 5;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            filter: brightness(0) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+            animation: knifeFall 0.8s linear infinite;
+            opacity: 0.9;
+        }
+        
+        @keyframes knifeFall {
+            0% { transform: translate(-50%, -50%) rotate(0deg) translateY(0); }
+            25% { transform: translate(-50%, -50%) rotate(90deg) translateY(-2px); }
+            50% { transform: translate(-50%, -50%) rotate(180deg) translateY(0); }
+            75% { transform: translate(-50%, -50%) rotate(270deg) translateY(2px); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) translateY(0); }
+        }
+        
+        #ghost {
+            position: absolute;
+            font-size: 100px;
+            z-index: 20;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            display: none;
+            animation: ghostFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes ghostFloat {
+            0%, 100% { 
+                transform: translate(-50%, -50%) translateY(0px);
+            }
+            50% { 
+                transform: translate(-50%, -50%) translateY(-20px);
+            }
+        }
+        
+        #uiPanel {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            gap: 15px;
+        }
+        
+        .statBox {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: clamp(16px, 4vw, 18px);
+            font-weight: 600;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            min-width: 140px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .statBox:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .statMain {
+            font-size: clamp(20px, 5vw, 26px);
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .statSub {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+        
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .startContent {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .startTitle {
+            font-size: clamp(24px, 6vw, 32px);
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .startText {
+            font-size: clamp(14px, 4vw, 16px);
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        .startButton {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 16px 40px;
+            font-size: clamp(16px, 4vw, 18px);
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            margin-top: 20px;
+        }
+        
+        .startButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 85%;
+            max-width: 400px;
+        }
+        
+        .screenTitle {
+            font-size: clamp(24px, 6vw, 32px);
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .actionButton {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 14px 32px;
+            font-size: clamp(16px, 4vw, 18px);
+            color: white;
+            cursor: pointer;
+            margin: 10px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .actionButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .blood {
+            position: absolute;
+            background: #dc2626;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: bloodSplash 1.5s ease-out forwards;
+            z-index: 8;
+        }
+        
+        @keyframes bloodSplash {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3) rotate(180deg);
+                opacity: 0;
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 6s ease-out infinite;
+            opacity: 0;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+        
+        .touchControls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 25px;
+            z-index: 50;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .touchArea {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .touchArea:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+        
+        .controlInfo {
+            position: absolute;
+            bottom: 120px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin: 0 60px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .newRecord {
+            animation: recordPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes recordPulse {
+            0%, 100% { 
+                color: #ffffff;
+                transform: scale(1);
+            }
+            50% { 
+                color: #667eea;
+                transform: scale(1.05);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #pumpkin {
+                font-size: 70px;
+            }
+            
+            #ghost {
+                font-size: 80px;
+            }
+            
+            .knife {
+                font-size: 28px;
+            }
+            
+            .touchArea {
+                height: 70px;
+                font-size: 28px;
+                width: 70px;
+            }
+            
+            .statBox {
+                padding: 14px 16px;
+                min-width: 120px;
+            }
+            
+            .controlInfo {
+                bottom: 110px;
+                font-size: 13px;
+                margin: 0 50px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #pumpkin {
+                font-size: 60px;
+            }
+            
+            #ghost {
+                font-size: 70px;
+            }
+            
+            .knife {
+                font-size: 24px;
+            }
+            
+            .touchArea {
+                height: 65px;
+                font-size: 24px;
+                width: 65px;
+                border-radius: 16px;
+            }
+            
+            .statBox {
+                padding: 12px 14px;
+                min-width: 110px;
+            }
+            
+            .controlInfo {
+                bottom: 100px;
+                font-size: 12px;
+                margin: 0 40px;
+                padding: 8px 16px;
+            }
+        }
+
+        #pumpkin {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="black-knife.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="damageSound">
+        <source src="uron.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="startScreen">
+        <div class="startContent">
+            <div class="startTitle">🎃 Pumpkin Defense</div>
+            <div class="startText">
+                Tap anywhere on the screen to start the game!
+                <br><br>
+                Use arrow buttons to move the pumpkin and dodge the black knives!
+            </div>
+            <button class="startButton" onclick="startGame()">TAP TO START</button>
+        </div>
+    </div>
+
+    <div class="fluidBackground"></div>
+    <div class="darkenOverlay" id="darkenOverlay"></div>
+    <div id="gameContainer">
+        <div id="pumpkin">🎃</div>
+        <div id="ghost">👻</div>
+        
+        <div id="uiPanel">
+            <div id="scoreBox" class="statBox">
+                <div class="statMain" id="score">0</div>
+                <div class="statSub">SCORE</div>
+            </div>
+            <div id="speedBox" class="statBox">
+                <div class="statMain" id="speed">1.0x</div>
+                <div class="statSub">SPEED</div>
+            </div>
+        </div>
+        
+        <div id="gameOver">
+            <div class="screenTitle">Game Over</div>
+            <p id="finalScore">SCORE: 0</p>
+            <p id="highScoreDisplay">BEST: 0</p>
+            <button id="restart" class="actionButton">PLAY AGAIN</button>
+        </div>
+        
+        <div class="controlInfo">USE ARROWS TO MOVE</div>
+        <div class="touchControls">
+            <div class="touchArea" id="upBtn">↑</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="touchArea" id="leftBtn">←</div>
+                <div class="touchArea" id="downBtn">↓</div>
+                <div class="touchArea" id="rightBtn">→</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let game;
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            game = new Game();
+        }
+
+        class Game {
+            constructor() {
+                this.pumpkin = document.getElementById('pumpkin');
+                this.ghost = document.getElementById('ghost');
+                this.gameContainer = document.getElementById('gameContainer');
+                this.darkenOverlay = document.getElementById('darkenOverlay');
+                this.scoreElement = document.getElementById('score');
+                this.speedElement = document.getElementById('speed');
+                this.gameOverScreen = document.getElementById('gameOver');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.highScoreDisplayElement = document.getElementById('highScoreDisplay');
+                this.restartButton = document.getElementById('restart');
+                this.backgroundMusic = document.getElementById('backgroundMusic');
+                this.damageSound = document.getElementById('damageSound');
+                this.upBtn = document.getElementById('upBtn');
+                this.downBtn = document.getElementById('downBtn');
+                this.leftBtn = document.getElementById('leftBtn');
+                this.rightBtn = document.getElementById('rightBtn');
+                
+                this.highScore = this.loadHighScore();
+                this.highScoreDisplayElement.textContent = this.highScore;
+                
+                this.ensurePumpkinVisibility();
+                
+                // Бесконечное HP - только визуальные эффекты при попадании
+                this.score = 0;
+                this.speed = 1.0;
+                this.gameRunning = true;
+                this.lastSpeedIncrease = Date.now();
+                this.speedIncreaseInterval = 4000;
+                this.knifeCount = 1;
+                
+                // Ghost phase - начинается через 30 секунд
+                this.ghostPhaseActive = false;
+                this.ghostPhaseStartTime = null;
+                this.ghostPhaseDuration = 15000;
+                this.ghostPhaseEnding = false;
+                this.gameStartTime = Date.now();
+                
+                this.pumpkinX = window.innerWidth / 2;
+                this.pumpkinY = window.innerHeight / 2;
+                
+                this.knives = [];
+                this.knifeInterval = null;
+                this.ghostKnifeInterval = null;
+                this.touchMove = null;
+                this.moveInterval = null;
+                
+                this.lastUpdateTime = Date.now();
+                this.moveSpeed = 8;
+                
+                this.ghostPatterns = [
+                    'spiral',
+                    'circle',
+                    'cross',
+                    'random'
+                ];
+                this.currentPattern = 0;
+                this.patternTimer = 0;
+                
+                this.init();
+            }
+            
+            loadHighScore() {
+                const saved = localStorage.getItem('pumpkinDefenseHighScore');
+                return saved ? parseInt(saved) : 0;
+            }
+            
+            saveHighScore() {
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('pumpkinDefenseHighScore', this.highScore.toString());
+                }
+            }
+            
+            playDamageSound() {
+                try {
+                    this.damageSound.currentTime = 0;
+                    this.damageSound.play().catch(e => {
+                        console.log('Damage sound play failed');
+                    });
+                } catch (error) {
+                    console.log('Damage sound error:', error);
+                }
+            }
+            
+            ensurePumpkinVisibility() {
+                this.pumpkin.style.display = 'block';
+                this.pumpkin.style.visibility = 'visible';
+                this.pumpkin.style.opacity = '1';
+                this.pumpkin.style.left = '50%';
+                this.pumpkin.style.top = '50%';
+            }
+            
+            init() {
+                this.updatePumpkinPosition();
+                this.setupEventListeners();
+                this.startKnifeGeneration();
+                this.createParticles();
+                this.startBackgroundMusic();
+                this.gameLoop();
+                
+                this.restartButton.addEventListener('click', () => this.restart());
+            }
+            
+            startBackgroundMusic() {
+                this.backgroundMusic.volume = 0.3;
+                const playMusic = () => {
+                    this.backgroundMusic.play().catch(e => {
+                        console.log('Audio play failed');
+                    });
+                };
+                
+                playMusic();
+            }
+            
+            createParticles() {
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        this.createParticle();
+                    }, i * 400);
+                }
+                
+                setInterval(() => {
+                    if (this.gameRunning && Math.random() > 0.7) {
+                        this.createParticle();
+                    }
+                }, 1000);
+            }
+            
+            createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particle.style.animationDelay = (Math.random() * 3) + 's';
+                this.gameContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.remove();
+                    }
+                }, 10000);
+            }
+            
+            setupEventListeners() {
+                this.setupTouchControls();
+                
+                // Старое управление мышью
+                document.addEventListener('mousemove', (e) => {
+                    if (this.gameRunning) {
+                        this.pumpkinX = e.clientX;
+                        this.pumpkinY = e.clientY;
+                        this.updatePumpkinPosition();
+                    }
+                });
+                
+                window.addEventListener('resize', () => {
+                    this.pumpkinX = Math.min(this.pumpkinX, window.innerWidth - 40);
+                    this.pumpkinY = Math.min(this.pumpkinY, window.innerHeight - 40);
+                    this.updatePumpkinPosition();
+                });
+            }
+            
+            setupTouchControls() {
+                const startMove = (direction) => {
+                    if (!this.gameRunning) return;
+                    this.stopMoving();
+                    this.touchMove = direction;
+                    this.movePumpkin();
+                };
+
+                const stopMove = () => {
+                    this.stopMoving();
+                };
+
+                this.upBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startMove('up');
+                }, { passive: false });
+                
+                this.upBtn.addEventListener('touchend', stopMove);
+                this.upBtn.addEventListener('touchcancel', stopMove);
+                
+                this.downBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startMove('down');
+                }, { passive: false });
+                
+                this.downBtn.addEventListener('touchend', stopMove);
+                this.downBtn.addEventListener('touchcancel', stopMove);
+                
+                this.leftBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startMove('left');
+                }, { passive: false });
+                
+                this.leftBtn.addEventListener('touchend', stopMove);
+                this.leftBtn.addEventListener('touchcancel', stopMove);
+                
+                this.rightBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startMove('right');
+                }, { passive: false });
+                
+                this.rightBtn.addEventListener('touchend', stopMove);
+                this.rightBtn.addEventListener('touchcancel', stopMove);
+                
+                // Mouse controls for testing
+                this.upBtn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startMove('up');
+                });
+                
+                this.upBtn.addEventListener('mouseup', stopMove);
+                this.upBtn.addEventListener('mouseleave', stopMove);
+                
+                this.downBtn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startMove('down');
+                });
+                
+                this.downBtn.addEventListener('mouseup', stopMove);
+                this.downBtn.addEventListener('mouseleave', stopMove);
+                
+                this.leftBtn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startMove('left');
+                });
+                
+                this.leftBtn.addEventListener('mouseup', stopMove);
+                this.leftBtn.addEventListener('mouseleave', stopMove);
+                
+                this.rightBtn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startMove('right');
+                });
+                
+                this.rightBtn.addEventListener('mouseup', stopMove);
+                this.rightBtn.addEventListener('mouseleave', stopMove);
+            }
+            
+            stopMoving() {
+                this.touchMove = null;
+                if (this.moveInterval) {
+                    cancelAnimationFrame(this.moveInterval);
+                    this.moveInterval = null;
+                }
+            }
+            
+            movePumpkin() {
+                if (!this.gameRunning || !this.touchMove) return;
+                
+                const now = Date.now();
+                const deltaTime = Math.min(now - this.lastUpdateTime, 100) / 1000;
+                this.lastUpdateTime = now;
+                
+                const moveDistance = this.moveSpeed * 60 * deltaTime;
+                
+                if (this.touchMove === 'up') {
+                    this.pumpkinY = Math.max(50, this.pumpkinY - moveDistance);
+                } else if (this.touchMove === 'down') {
+                    this.pumpkinY = Math.min(window.innerHeight - 50, this.pumpkinY + moveDistance);
+                } else if (this.touchMove === 'left') {
+                    this.pumpkinX = Math.max(50, this.pumpkinX - moveDistance);
+                } else if (this.touchMove === 'right') {
+                    this.pumpkinX = Math.min(window.innerWidth - 50, this.pumpkinX + moveDistance);
+                }
+                
+                this.updatePumpkinPosition();
+                
+                this.moveInterval = requestAnimationFrame(() => this.movePumpkin());
+            }
+            
+            updatePumpkinPosition() {
+                this.pumpkin.style.left = this.pumpkinX + 'px';
+                this.pumpkin.style.top = this.pumpkinY + 'px';
+            }
+            
+            startKnifeGeneration() {
+                this.knifeInterval = setInterval(() => {
+                    if (this.gameRunning && !this.ghostPhaseActive) {
+                        for (let i = 0; i < this.knifeCount; i++) {
+                            setTimeout(() => {
+                                this.createKnife();
+                            }, i * 200);
+                        }
+                    }
+                }, 1500 / this.speed);
+            }
+            
+            startGhostPhase() {
+                this.ghostPhaseActive = true;
+                this.ghostPhaseStartTime = Date.now();
+                this.ghostPhaseEnding = false;
+                
+                clearInterval(this.knifeInterval);
+                
+                this.ghost.style.display = 'block';
+                this.ghost.style.left = '50%';
+                this.ghost.style.top = '50%';
+                this.darkenOverlay.style.opacity = '1';
+                
+                this.pumpkin.classList.add('pumpkinGhostPhase');
+                
+                this.ghostKnifeInterval = setInterval(() => {
+                    if (this.gameRunning && this.ghostPhaseActive) {
+                        this.createGhostKnifePattern();
+                    }
+                }, 300 / this.speed);
+            }
+            
+            createGhostKnifePattern() {
+                const pattern = this.ghostPatterns[this.currentPattern];
+                const ghostX = window.innerWidth / 2;
+                const ghostY = window.innerHeight / 2;
+                
+                switch(pattern) {
+                    case 'spiral':
+                        this.createSpiralPattern(ghostX, ghostY);
+                        break;
+                    case 'circle':
+                        this.createCirclePattern(ghostX, ghostY);
+                        break;
+                    case 'cross':
+                        this.createCrossPattern(ghostX, ghostY);
+                        break;
+                    case 'random':
+                        this.createRandomPattern(ghostX, ghostY);
+                        break;
+                }
+                
+                this.patternTimer++;
+                if (this.patternTimer > 30) {
+                    this.patternTimer = 0;
+                    this.currentPattern = (this.currentPattern + 1) % this.ghostPatterns.length;
+                }
+            }
+            
+            createSpiralPattern(centerX, centerY) {
+                const angle = this.patternTimer * 0.3;
+                const radius = 50 + this.patternTimer * 3;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                this.createGhostKnife(x, y, centerX, centerY);
+            }
+            
+            createCirclePattern(centerX, centerY) {
+                const knives = 8;
+                for (let i = 0; i < knives; i++) {
+                    const angle = (i / knives) * Math.PI * 2;
+                    const radius = 200;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    this.createGhostKnife(x, y, centerX, centerY);
+                }
+            }
+            
+            createCrossPattern(centerX, centerY) {
+                const offsets = [-150, -100, -50, 50, 100, 150];
+                offsets.forEach(offset => {
+                    this.createGhostKnife(centerX + offset, centerY - 200, centerX, centerY);
+                    this.createGhostKnife(centerX + offset, centerY + 200, centerX, centerY);
+                    this.createGhostKnife(centerX - 200, centerY + offset, centerX, centerY);
+                    this.createGhostKnife(centerX + 200, centerY + offset, centerX, centerY);
+                });
+            }
+            
+            createRandomPattern(centerX, centerY) {
+                for (let i = 0; i < 5; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 150 + Math.random() * 100;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    this.createGhostKnife(x, y, centerX, centerY);
+                }
+            }
+            
+            createGhostKnife(startX, startY, targetX, targetY) {
+                const knife = document.createElement('div');
+                knife.className = 'knife';
+                knife.innerHTML = '🔪';
+                
+                knife.style.left = startX + 'px';
+                knife.style.top = startY + 'px';
+                
+                this.gameContainer.appendChild(knife);
+                
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const directionX = dx / length;
+                const directionY = dy / length;
+                
+                this.knives.push({
+                    element: knife,
+                    x: startX,
+                    y: startY,
+                    speed: 5 + Math.random() * 2,
+                    directionX: directionX,
+                    directionY: directionY,
+                    type: 'ghostKnife'
+                });
+            }
+            
+            endGhostPhase() {
+                this.ghostPhaseActive = false;
+                this.ghostPhaseEnding = false;
+                this.ghost.style.display = 'none';
+                this.darkenOverlay.style.opacity = '0';
+                this.gameContainer.style.transform = 'scale(1)';
+                
+                this.pumpkin.classList.remove('pumpkinGhostPhase');
+                
+                clearInterval(this.ghostKnifeInterval);
+                
+                this.knives.forEach(knife => knife.element.remove());
+                this.knives = [];
+                
+                this.gameStartTime = Date.now();
+                
+                this.startKnifeGeneration();
+            }
+            
+            createKnife() {
+                const knife = document.createElement('div');
+                knife.className = 'knife';
+                knife.innerHTML = '🔪';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.max(window.innerWidth, window.innerHeight) * 0.8;
+                const startX = this.pumpkinX + Math.cos(angle) * distance;
+                const startY = this.pumpkinY + Math.sin(angle) * distance;
+                
+                knife.style.left = startX + 'px';
+                knife.style.top = startY + 'px';
+                
+                this.gameContainer.appendChild(knife);
+                
+                const dx = this.pumpkinX - startX;
+                const dy = this.pumpkinY - startY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const directionX = dx / length;
+                const directionY = dy / length;
+                
+                this.knives.push({
+                    element: knife,
+                    x: startX,
+                    y: startY,
+                    speed: 3 + Math.random() * 2,
+                    directionX: directionX,
+                    directionY: directionY,
+                    type: 'knife'
+                });
+            }
+            
+            updateKnives() {
+                const now = Date.now();
+                const deltaTime = Math.min(now - this.lastUpdateTime, 100) / 1000;
+                
+                for (let i = this.knives.length - 1; i >= 0; i--) {
+                    const knife = this.knives[i];
+                    
+                    knife.x += knife.directionX * knife.speed * this.speed * 60 * deltaTime;
+                    knife.y += knife.directionY * knife.speed * this.speed * 60 * deltaTime;
+                    
+                    knife.element.style.left = knife.x + 'px';
+                    knife.element.style.top = knife.y + 'px';
+                    
+                    if (this.checkCollision(knife)) {
+                        // Эффект попадания без потери HP
+                        this.playDamageSound();
+                        this.pumpkin.classList.add('pumpkinHit');
+                        setTimeout(() => {
+                            this.pumpkin.classList.remove('pumpkinHit');
+                        }, 300);
+                        
+                        this.createBloodSplatter();
+                        
+                        knife.element.remove();
+                        this.knives.splice(i, 1);
+                        continue;
+                    }
+                    
+                    const dx = knife.x - this.pumpkinX;
+                    const dy = knife.y - this.pumpkinY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > Math.max(window.innerWidth, window.innerHeight) * 1.5) {
+                        knife.element.remove();
+                        this.knives.splice(i, 1);
+                        this.score += 10;
+                        this.scoreElement.textContent = this.score;
+                    }
+                }
+                
+                this.lastUpdateTime = now;
+            }
+            
+            checkCollision(obj) {
+                const pumpkinRect = {
+                    left: this.pumpkinX - 35,
+                    right: this.pumpkinX + 35,
+                    top: this.pumpkinY - 35,
+                    bottom: this.pumpkinY + 35
+                };
+                
+                const objRect = {
+                    left: obj.x - 20,
+                    right: obj.x + 20,
+                    top: obj.y - 20,
+                    bottom: obj.y + 20
+                };
+                
+                return pumpkinRect.left < objRect.right &&
+                       pumpkinRect.right > objRect.left &&
+                       pumpkinRect.top < objRect.bottom &&
+                       pumpkinRect.bottom > objRect.top;
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                clearInterval(this.knifeInterval);
+                clearInterval(this.ghostKnifeInterval);
+                this.stopMoving();
+                
+                this.createBloodSplatter();
+                
+                this.knives.forEach(knife => {
+                    knife.element.style.animation = 'none';
+                });
+                
+                this.saveHighScore();
+                
+                setTimeout(() => {
+                    this.showGameOver();
+                }, 1000);
+            }
+            
+            createBloodSplatter() {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const blood = document.createElement('div');
+                        blood.className = 'blood';
+                        blood.style.left = this.pumpkinX + 'px';
+                        blood.style.top = this.pumpkinY + 'px';
+                        blood.style.width = (Math.random() * 20 + 10) + 'px';
+                        blood.style.height = blood.style.width;
+                        blood.style.background = `rgba(220, 38, 38, ${Math.random() * 0.7 + 0.3})`;
+                        
+                        this.gameContainer.appendChild(blood);
+                        
+                        setTimeout(() => {
+                            if (blood.parentNode) {
+                                blood.remove();
+                            }
+                        }, 1500);
+                    }, i * 100);
+                }
+            }
+            
+            showGameOver() {
+                this.finalScoreElement.textContent = 'SCORE: ' + this.score;
+                this.highScoreDisplayElement.textContent = 'BEST: ' + this.highScore;
+                this.gameOverScreen.style.display = 'block';
+            }
+            
+            restart() {
+                this.gameOverScreen.style.display = 'none';
+                
+                this.knives.forEach(knife => knife.element.remove());
+                
+                this.knives = [];
+                this.score = 0;
+                this.speed = 1.0;
+                this.gameRunning = true;
+                this.lastSpeedIncrease = Date.now();
+                this.lastUpdateTime = Date.now();
+                this.knifeCount = 1;
+                this.ghostPhaseActive = false;
+                this.ghostPhaseStartTime = null;
+                this.ghostPhaseEnding = false;
+                this.gameStartTime = Date.now();
+                
+                this.ghost.style.display = 'none';
+                this.darkenOverlay.style.opacity = '0';
+                this.gameContainer.style.transform = 'scale(1)';
+                this.pumpkin.classList.remove('pumpkinGhostPhase');
+                this.pumpkin.classList.remove('pumpkinHit');
+                
+                this.scoreElement.textContent = '0';
+                this.speedElement.textContent = '1.0x';
+                
+                this.pumpkinX = window.innerWidth / 2;
+                this.pumpkinY = window.innerHeight / 2;
+                this.updatePumpkinPosition();
+                
+                this.startKnifeGeneration();
+                this.gameLoop();
+            }
+            
+            gameLoop() {
+                if (!this.gameRunning) return;
+                
+                this.updateKnives();
+                
+                // Фаза призрака начинается через 30 секунд от начала игры
+                if (!this.ghostPhaseActive) {
+                    const timeSinceStart = Date.now() - this.gameStartTime;
+                    if (timeSinceStart >= 30000) {
+                        this.startGhostPhase();
+                    }
+                }
+                
+                if (this.ghostPhaseActive) {
+                    const ghostPhaseTime = Date.now() - this.ghostPhaseStartTime;
+                    const timeLeft = this.ghostPhaseDuration - ghostPhaseTime;
+                    
+                    if (timeLeft <= 3000 && !this.ghostPhaseEnding) {
+                        this.ghostPhaseEnding = true;
+                        this.gameContainer.style.transform = 'scale(1.3)';
+                    }
+                    
+                    if (ghostPhaseTime >= this.ghostPhaseDuration) {
+                        this.endGhostPhase();
+                    }
+                }
+                
+                const now = Date.now();
+                if (now - this.lastSpeedIncrease > this.speedIncreaseInterval) {
+                    this.speed += 0.15;
+                    this.speedElement.textContent = this.speed.toFixed(1) + 'x';
+                    this.lastSpeedIncrease = now;
+                    
+                    if (this.speed >= 1.0 && this.knifeCount < 2) {
+                        this.knifeCount = 2;
+                    } else if (this.speed >= 1.5 && this.knifeCount < 3) {
+                        this.knifeCount = 3;
+                    } else if (this.speed >= 2.0 && this.knifeCount < 4) {
+                        this.knifeCount = 4;
+                    } else if (this.speed >= 2.5 && this.knifeCount < 5) {
+                        this.knifeCount = 5;
+                    } else if (this.speed >= 3.0 && this.knifeCount < 6) {
+                        this.knifeCount = 6;
+                    }
+                    
+                    if (!this.ghostPhaseActive) {
+                        clearInterval(this.knifeInterval);
+                        this.startKnifeGeneration();
+                    }
+                }
+                
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+    </script>
+</body>
+</html>
