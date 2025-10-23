@@ -288,64 +288,9 @@
             }
         }
         
-        #startScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .startContent {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        .startTitle {
-            font-size: clamp(24px, 6vw, 32px);
-            margin-bottom: 20px;
-            color: #ffffff;
-            font-weight: 700;
-        }
-        
-        .startText {
-            font-size: clamp(14px, 4vw, 16px);
-            margin-bottom: 25px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-        
-        .startButton {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 16px 40px;
-            font-size: clamp(16px, 4vw, 18px);
-            color: white;
-            cursor: pointer;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            margin-top: 20px;
-        }
-        
         .blood {
             position: absolute;
-            background: #dc2626;
+            background: #ff8c00; /* Оранжевый цвет крови */
             border-radius: 50%;
             pointer-events: none;
             animation: bloodSplash 1.5s ease-out forwards;
@@ -407,7 +352,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
+            background: #000000; /* Чёрный фон */
             z-index: 3000;
             display: flex;
             flex-direction: column;
@@ -416,21 +361,15 @@
             text-align: center;
         }
 
-        .menuPumpkin {
-            font-size: 120px;
-            margin-bottom: 20px;
-            animation: pumpkinBreath 3s ease-in-out infinite;
-        }
-
         .menuText {
-            font-size: 18px;
+            font-size: 24px;
             color: white;
             font-weight: 300;
             margin-bottom: 30px;
         }
 
         .tapAnywhere {
-            font-size: 14px;
+            font-size: 16px;
             color: rgba(255, 255, 255, 0.7);
             position: absolute;
             bottom: 50px;
@@ -470,8 +409,7 @@
 
     <!-- Минималистичное меню вместо старого -->
     <div id="minimalMenu" class="minimalMenu">
-        <div class="menuPumpkin">🎃</div>
-        <div class="menuText">Pumpkin Defense</div>
+        <div class="menuText">нажмите на экран для начала</div>
         <div class="tapAnywhere">нажмите на любую часть экрана</div>
     </div>
 
